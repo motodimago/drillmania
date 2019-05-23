@@ -113,7 +113,7 @@ export default class Index extends Vue {
       this.score += 1;
     }
     this.isHideImage = false;
-    setTimeout(this.goNext, 500);
+    setTimeout(this.goNext, 400);
   }
 
   onClickRestart() {
