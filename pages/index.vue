@@ -7,22 +7,26 @@
     @keyup.right="onClick(answerType.No)"
   >
     <h1 class="title">Drill Mania</h1>
-    <div class="time">
-      {{elapsedTime}}
-      <span class="unit">sec</span>
-    </div>
-    <div class="score">{{score}}</div>
 
-    <div class="image">
-      <img
-        v-for="target in targets"
-        v-show="target.imageName === currentTarget.imageName"
-        :key="target.imageName"
-        :src="require('@/assets/image/' + target.imageName + '.png')"
-        :class="{black: isHideImage}"
-      >
+    <div v-show="!isStarted" class="start-count">{{ startCount }}</div>
+
+    <div v-show="isStarted">
+      <div class="time">
+        {{elapsedTime}}
+        <span class="unit">sec</span>
+      </div>
+      <div class="score">{{score}}</div>
+      <div class="image">
+        <img
+          v-for="target in targets"
+          v-show="target.imageName === currentTarget.imageName"
+          :key="target.imageName"
+          :src="require('@/assets/image/' + target.imageName + '.png')"
+          :class="{black: isHideImage}"
+        >
+      </div>
+      <div class="ask">{{ isHideImage ? "これはドリルですか？" : currentTarget.answerName }}</div>
     </div>
-    <div class="ask">{{ isHideImage ? "これはドリルですか？" : currentTarget.answerName }}</div>
 
     <div class="buttons">
       <div class="yes" @click="onClick(answerType.Yes)">Yes</div>
@@ -46,7 +50,7 @@ import { setTimeout } from "timers";
   components: {}
 })
 export default class Index extends Vue {
-  version = "1.0.0";
+  version = "1.0.1";
 
   isPlaying = true;
   isHideImage = true;
@@ -54,6 +58,7 @@ export default class Index extends Vue {
   time = 0;
   answerType = AnswerType;
 
+  startCount = 3;
   loadedImageCount = 0;
 
   targets: Target[] = [
@@ -82,7 +87,18 @@ export default class Index extends Vue {
   start() {
     this.isPlaying = true;
     this.init();
-    this.timer();
+    this.startCountDown();
+  }
+
+  startCountDown() {
+    setTimeout(() => {
+      this.startCount -= 1;
+      if (this.startCount === 0) {
+        this.timer();
+      } else {
+        this.startCountDown();
+      }
+    }, 1000);
   }
 
   timer() {
@@ -97,6 +113,7 @@ export default class Index extends Vue {
   }
 
   init() {
+    this.startCount = 3;
     this.time = 0;
     this.score = 0;
     this.setCurrentTarget();
@@ -105,6 +122,10 @@ export default class Index extends Vue {
   get elapsedTime(): string {
     const add = this.time % 1000 === 0 ? ".0" : "";
     return this.time / 1000 + add;
+  }
+
+  get isStarted(): boolean {
+    return this.startCount === 0;
   }
 
   setCurrentTarget() {
@@ -151,7 +172,18 @@ export default class Index extends Vue {
   font-weight: 900;
   font-size: 50px;
 }
+
+.start-count {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 440px;
+  font-weight: 900;
+  font-size: 240px;
+}
+
 .time {
+  height: 80px;
   font-weight: 900;
   font-size: 50px;
 }
@@ -160,6 +192,7 @@ export default class Index extends Vue {
 }
 
 .score {
+  height: 80px;
   font-weight: 900;
   font-size: 60px;
   margin: 0 0 10px 0;
@@ -175,6 +208,7 @@ export default class Index extends Vue {
 }
 
 .ask {
+  height: 30px;
   font-size: 20px;
   margin: 20px 0;
 }
