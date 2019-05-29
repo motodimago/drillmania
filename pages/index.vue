@@ -14,7 +14,13 @@
     <div class="score">{{score}}</div>
 
     <div class="image">
-      <img :src="imagePath" :class="{black: isHideImage}">
+      <img
+        v-for="target in targets"
+        v-show="target.imageName === currentTarget.imageName"
+        :key="target.imageName"
+        :src="require('@/assets/image/' + target.imageName + '.png')"
+        :class="{black: isHideImage}"
+      >
     </div>
     <div class="ask">{{ isHideImage ? "これはドリルですか？" : currentTarget.answerName }}</div>
 
@@ -45,6 +51,8 @@ export default class Index extends Vue {
   time = 0;
   answerType = AnswerType;
 
+  loadedImageCount = 0;
+
   targets: Target[] = [
     new Target("drill1", AnswerType.Yes, "ドリル！"),
     new Target("drill2", AnswerType.Yes, "ドリル！"),
@@ -58,8 +66,18 @@ export default class Index extends Vue {
   }
 
   mounted() {
+    // preload
+    this.targets.forEach(target => {
+      const image = new Image();
+      image.onload = () => {
+        this.loadedImageCount++;
+        if (this.loadedImageCount === this.targets.length) {
+          this.start();
+        }
+      };
+      image.src = require("@/assets/image/" + target.imageName + ".png");
+    });
     (this.$refs.container as HTMLElement).focus();
-    this.start();
   }
 
   start() {
