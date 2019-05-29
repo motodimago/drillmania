@@ -61,10 +61,6 @@ export default class Index extends Vue {
   ];
   currentTarget: Target = new Target("", AnswerType.Yes, "");
 
-  created() {
-    this.setCurrentTarget();
-  }
-
   mounted() {
     // preload
     this.targets.forEach(target => {
@@ -106,10 +102,6 @@ export default class Index extends Vue {
   get elapsedTime(): string {
     const add = this.time % 1000 === 0 ? ".0" : "";
     return this.time / 1000 + add;
-  }
-
-  get imagePath(): string {
-    return require("@/assets/image/" + this.currentTarget.imageName + ".png");
   }
 
   setCurrentTarget() {
@@ -170,6 +162,7 @@ export default class Index extends Vue {
   margin: 0 0 10px 0;
 }
 
+.image,
 .image img {
   height: 200px;
 }
