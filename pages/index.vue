@@ -32,6 +32,7 @@
     <div class="result" v-if="!isPlaying">
       <div class="result-socre">{{score}}</div>
       <div class="restart" @click="onClickRestart">Restart</div>
+      <div class="version">v{{ version }}</div>
     </div>
   </div>
 </template>
@@ -45,6 +46,8 @@ import { setTimeout } from "timers";
   components: {}
 })
 export default class Index extends Vue {
+  version = "1.0.0";
+
   isPlaying = true;
   isHideImage = true;
   score = 0;
@@ -251,5 +254,13 @@ export default class Index extends Vue {
   &:hover {
     opacity: 0.8;
   }
+}
+
+.version {
+  color: #ffffff;
+  font-size: 14px;
+  margin-top: 180px;
+  opacity: 0.8;
+  text-align: center;
 }
 </style>
