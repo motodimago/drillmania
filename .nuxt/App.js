@@ -1,12 +1,14 @@
 import Vue from 'vue'
+import { getMatchedComponentsInstances, promisify, globalHandleError } from './utils'
 import NuxtLoading from './components/nuxt-loading.vue'
+import NuxtBuildIndicator from './components/nuxt-build-indicator'
 
 import _6f6c098b from '../layouts/default.vue'
 
 const layouts = { "_default": _6f6c098b }
 
 export default {
-  head: {"titleTemplate":"Drill Mania","meta":[{"charset":"utf-8"},{"name":"viewport","content":"width=device-width, initial-scale=1"}],"link":[],"style":[],"script":[]},
+  head: {"meta":[],"link":[],"style":[],"script":[]},
 
   render(h, props) {
     const loadingEl = h('NuxtLoading', { ref: 'loading' })
@@ -37,10 +39,7 @@ export default {
       domProps: {
         id: '__nuxt'
       }
-    }, [
-      loadingEl,
-      transitionEl
-    ])
+    }, [loadingEl, h(NuxtBuildIndicator), transitionEl])
   },
   data: () => ({
     isOnline: true,
@@ -63,6 +62,8 @@ export default {
     }
     // Add $nuxt.error()
     this.error = this.nuxt.error
+    // Add $nuxt.context
+    this.context = this.$options.context
   },
 
   mounted() {
@@ -89,6 +90,40 @@ export default {
           this.isOnline = window.navigator.onLine
         }
       }
+    },
+    async refresh() {
+      const pages = getMatchedComponentsInstances(this.$route)
+
+      if (!pages.length) {
+        return
+      }
+      this.$loading.start()
+      const promises = pages.map(async (page) => {
+        const p = []
+
+        if (page.$options.fetch) {
+          p.push(promisify(page.$options.fetch, this.context))
+        }
+        if (page.$options.asyncData) {
+          p.push(
+            promisify(page.$options.asyncData, this.context)
+              .then((newData) => {
+                for (const key in newData) {
+                  Vue.set(page.$data, key, newData[key])
+                }
+              })
+          )
+        }
+        return Promise.all(p)
+      })
+      try {
+        await Promise.all(promises)
+      } catch (error) {
+        this.$loading.fail()
+        globalHandleError(error)
+        this.error(error)
+      }
+      this.$loading.finish()
     },
 
     errorChanged() {

@@ -23,7 +23,7 @@
           :key="target.imageName"
           :src="require('@/assets/image/' + target.imageName + '.png')"
           :class="{black: isHideImage}"
-        >
+        />
       </div>
       <div class="ask">{{ isHideImage ? "これはドリルですか？" : currentTarget.answerName }}</div>
     </div>

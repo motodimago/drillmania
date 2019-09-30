@@ -12,9 +12,6 @@ Vue.component('NLink', NuxtLink)
 
 if (!global.fetch) { global.fetch = fetch }
 
-const debug = require('debug')('nuxt:render')
-debug.color = 4 // force blue color
-
 const noopApp = () => new Vue({ render: h => h('div') })
 
 const createNext = ssrContext => (opts) => {
@@ -66,6 +63,8 @@ export default async (ssrContext) => {
   const beforeRender = async () => {
     // Call beforeNuxtRender() methods
     await Promise.all(ssrContext.beforeRenderFns.map(fn => promisify(fn, { Components, nuxtState: ssrContext.nuxt })))
+    ssrContext.rendered = () => {
+    }
   }
   const renderErrorPage = async () => {
     // Load layout for error page
@@ -198,7 +197,7 @@ export default async (ssrContext) => {
     return Promise.all(promises)
   }))
 
-  if (asyncDatas.length) debug('Data fetching ' + ssrContext.url + ': ' + (Date.now() - s) + 'ms')
+  if (process.env.DEBUG && asyncDatas.length)console.debug('Data fetching ' + ssrContext.url + ': ' + (Date.now() - s) + 'ms')
 
   // datas are the first row of each
   ssrContext.nuxt.data = asyncDatas.map(r => r[0] || {})
