@@ -37,6 +37,7 @@
       <div class="result-socre">{{score}}</div>
       <div class="restart" @click="onClickRestart">Restart</div>
       <div class="version">v{{ version }}</div>
+      <a font-size="20" href="https://www.bebit.co.jp?test=12345&test2=refreftest">テストリンク！！</a>
     </div>
   </div>
 </template>
